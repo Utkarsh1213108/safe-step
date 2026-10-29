@@ -20,7 +20,7 @@ export function useSpeechInput(onText: (text: string) => void) {
 
   useEffect(() => {
     const w = window as unknown as Record<string, unknown>;
-    const Ctor = (w.SpeechRecognition || w.webkitSpeechRecognition) as (new () => Recognition) | undefined;
+    const Ctor = (w['SpeechRecognition'] || w['webkitSpeechRecognition']) as (new () => Recognition) | undefined;
     if (!Ctor) return;
     const rec = new Ctor();
     rec.lang = "en-IN";
@@ -28,7 +28,7 @@ export function useSpeechInput(onText: (text: string) => void) {
     rec.continuous = false;
     rec.onresult = (e) => {
       const text = Array.from(e.results)
-        .map((r) => r[0].transcript)
+        .map((r) => r[0]?.transcript ?? "")
         .join("");
       cb.current(text);
     };

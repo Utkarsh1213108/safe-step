@@ -73,7 +73,7 @@ function Learn() {
   const [picked, setPicked] = useState<number | null>(null);
   const [score, setScore] = useState(0);
   const done = idx >= SCENARIOS.length;
-  const s = SCENARIOS[idx];
+  const s = SCENARIOS[Math.min(idx, SCENARIOS.length - 1)]!;
 
   const choose = (i: number) => {
     if (picked !== null) return;
@@ -116,7 +116,7 @@ function Learn() {
                 return (
                   <motion.button
                     key={i}
-                    whileHover={picked === null ? { x: 6 } : undefined}
+                    whileHover={picked === null ? { x: 6 } : {}}
                     onClick={() => choose(i)}
                     disabled={picked !== null}
                     className={`flex items-start gap-3 rounded-2xl border-2 p-4 text-left transition ${
