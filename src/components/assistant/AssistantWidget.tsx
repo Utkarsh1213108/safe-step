@@ -18,6 +18,7 @@ import {
 } from "@/components/ai-elements/prompt-input";
 import { findGuidance, looksSensitive } from "@/lib/guidance";
 import { useSpeechInput, useSpeechOutput } from "@/hooks/use-speech";
+import { Button } from "@/components/ui/button";
 
 const STARTERS = [
   "I got a message promising guaranteed returns",
@@ -93,6 +94,7 @@ function ChatPanel({ onClose, seed, clearSeed }: { onClose: () => void; seed: st
   const [mode, setMode] = useState<"ai" | "guided">("ai");
   const [speakOn, setSpeakOn] = useState(false);
   const [warning, setWarning] = useState<string | null>(null);
+  const [serviceError, setServiceError] = useState<string | null>(null);
   const lastUser = useRef("");
   const controller = usePromptInputController();
   const tts = useSpeechOutput();
@@ -101,7 +103,8 @@ function ChatPanel({ onClose, seed, clearSeed }: { onClose: () => void; seed: st
   const transport = useMemo(() => new DefaultChatTransport({ api: "/api/chat" }), []);
   const { messages, sendMessage, status, stop, setMessages } = useChat({
     transport,
-    onError: () => {
+    onError: (error) => {
+      setServiceError(error.message || "AI is unavailable. Saved safety guidance is shown below.");
       setMode("guided");
       setMessages((prev) => [
         ...prev,
@@ -115,6 +118,7 @@ function ChatPanel({ onClose, seed, clearSeed }: { onClose: () => void; seed: st
   });
 
   const busy = status === "submitted" || status === "streaming";
+  const submitStatus = mode === "guided" ? "ready" : status;
 
   // Speak the last finished assistant reply.
   const spokenId = useRef<string | null>(null);
@@ -200,6 +204,11 @@ function ChatPanel({ onClose, seed, clearSeed }: { onClose: () => void; seed: st
         </button>
       </header>
 
+      <div className="flex items-center gap-2 border-b px-4 py-2">
+        <Button size="sm" variant={mode === "ai" ? "default" : "outline"} disabled={busy} aria-pressed={mode === "ai"} onClick={() => { setMode("ai"); setServiceError(null); }}>AI</Button>
+        <Button size="sm" variant={mode === "guided" ? "default" : "outline"} disabled={busy} aria-pressed={mode === "guided"} onClick={() => { setMode("guided"); setServiceError(null); }}>Saved guidance</Button>
+      </div>
+
       <Conversation className="flex-1">
         <ConversationContent className="gap-5 p-4">
           {messages.length === 0 && (
@@ -248,6 +257,7 @@ function ChatPanel({ onClose, seed, clearSeed }: { onClose: () => void; seed: st
       </Conversation>
 
       <div className="border-t p-3">
+        {serviceError && <p role="alert" className="mb-2 text-sm text-destructive">{serviceError}</p>}
         {warning && <p className="mb-2 rounded-xl bg-destructive/10 px-3 py-2 text-sm text-destructive">{warning}</p>}
         <PromptInput onSubmit={(msg) => send(msg.text)}>
           <PromptInputTextarea autoFocus placeholder={mic.listening ? "Listening…" : "Describe what happened…"} />
@@ -264,7 +274,7 @@ function ChatPanel({ onClose, seed, clearSeed }: { onClose: () => void; seed: st
               )}
               <span className="text-xs text-muted-foreground">Emergency? Call 1930</span>
             </PromptInputTools>
-            <PromptInputSubmit status={status} onStop={stop} />
+            <PromptInputSubmit status={submitStatus} onStop={stop} />
           </PromptInputFooter>
         </PromptInput>
       </div>

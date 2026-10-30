@@ -44,6 +44,7 @@ export function useSpeechInput(onText: (text: string) => void) {
     if (!rec) return;
     if (listening) {
       rec.stop();
+      setListening(false);
     } else {
       try {
         rec.start();
@@ -62,7 +63,7 @@ export function useSpeechOutput() {
   useEffect(() => setSupported(typeof window !== "undefined" && "speechSynthesis" in window), []);
 
   const speak = useCallback((markdown: string) => {
-    if (!("speechSynthesis" in window)) return;
+    if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
     const text = markdown
       .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
       .replace(/[*_#`>-]/g, "")
@@ -75,7 +76,8 @@ export function useSpeechOutput() {
     window.speechSynthesis.speak(u);
   }, []);
   const cancel = useCallback(() => {
-    if ("speechSynthesis" in window) window.speechSynthesis.cancel();
+    if (typeof window !== "undefined" && "speechSynthesis" in window) window.speechSynthesis.cancel();
   }, []);
+  useEffect(() => cancel, [cancel]);
   return { supported, speak, cancel };
 }
