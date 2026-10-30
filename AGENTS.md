@@ -8,3 +8,6 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+
+- Keep the visitor assistant session-only and compose it from the installed AI Elements; saved guidance is an explicit no-AI alternative.
+- Respect reduced-motion preferences through the shared MotionConfig and global CSS so animations remain accessible.

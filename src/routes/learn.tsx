@@ -73,10 +73,10 @@ function Learn() {
   const [picked, setPicked] = useState<number | null>(null);
   const [score, setScore] = useState(0);
   const done = idx >= SCENARIOS.length;
-  const s = SCENARIOS[Math.min(idx, SCENARIOS.length - 1)]!;
+  const s = SCENARIOS[Math.min(idx, SCENARIOS.length - 1)];
 
   const choose = (i: number) => {
-    if (picked !== null) return;
+    if (picked !== null || !s?.options[i]) return;
     setPicked(i);
     if (s.options[i].correct) setScore((n) => n + 1);
   };
@@ -84,6 +84,8 @@ function Learn() {
     setPicked(null);
     setIdx((n) => n + 1);
   };
+
+  if (!s) return null;
 
   return (
     <section className="mx-auto max-w-3xl px-4 py-16">
@@ -102,7 +104,7 @@ function Learn() {
             </motion.div>
             <p className="mt-4 font-display text-3xl font-bold">{score} / {SCENARIOS.length} safe choices</p>
             <p className="mt-2 opacity-85">{score === SCENARIOS.length ? "Excellent — you'd spot these scams." : "Good effort! Every practice run makes you safer."}</p>
-            <button onClick={() => { setIdx(0); setScore(0); }} className="glass mt-6 inline-flex items-center gap-2 rounded-full px-6 py-3 font-semibold">
+            <button onClick={() => { setIdx(0); setScore(0); setPicked(null); }} className="glass mt-6 inline-flex items-center gap-2 rounded-full px-6 py-3 font-semibold">
               <RotateCcw className="h-4 w-4" /> Try again
             </button>
           </motion.div>
