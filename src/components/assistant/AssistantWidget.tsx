@@ -103,8 +103,8 @@ function ChatPanel({ onClose, seed, clearSeed }: { onClose: () => void; seed: st
   const transport = useMemo(() => new DefaultChatTransport({ api: "/api/chat" }), []);
   const { messages, sendMessage, status, stop, setMessages } = useChat({
     transport,
-    onError: (error) => {
-      setServiceError(error.message || "AI is unavailable. Saved safety guidance is shown below.");
+    onError: () => {
+      setServiceError("The AI assistant is unavailable right now, so trusted saved guidance is shown below.");
       setMode("guided");
       setMessages((prev) => [
         ...prev,

@@ -5,9 +5,14 @@ export const Route = createFileRoute("/api/chat")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const apiKey = process.env['LOVABLE_API_KEY'];
-        if (!apiKey) {
-          return Response.json({ error: "AI is not configured." }, { status: 503 });
+        const { resolveAiConfig, streamSaferStepChat } = await import("@/lib/ai/chat.server");
+        const config = resolveAiConfig(process.env);
+        if (config.kind === "none") {
+          // Friendly message only — the widget switches to Saved Guidance mode.
+          return Response.json(
+            { error: "The AI assistant is not available right now. Saved safety guidance is shown instead." },
+            { status: 503 },
+          );
         }
         let messages: UIMessage[];
         try {
@@ -17,8 +22,7 @@ export const Route = createFileRoute("/api/chat")({
         } catch {
           return Response.json({ error: "Invalid request." }, { status: 400 });
         }
-        const { streamSaferStepChat } = await import("@/lib/ai/chat.server");
-        return streamSaferStepChat(request, apiKey, await convertToModelMessages(messages));
+        return streamSaferStepChat(request, config, await convertToModelMessages(messages));
       },
     },
   },

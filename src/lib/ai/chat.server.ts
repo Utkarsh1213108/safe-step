@@ -25,12 +25,52 @@ Hard rules:
 - If someone is in immediate danger or distress, encourage contacting local emergency services (112) or a trusted person.
 - You are not a lawyer or financial adviser; say so when relevant.`;
 
-export function streamSaferStepChat(request: Request, apiKey: string, messages: ModelMessage[]) {
+export type AiConfig =
+  | { kind: "lovable"; apiKey: string }
+  | { kind: "openai"; apiKey: string }
+  | { kind: "none" };
+
+/**
+ * Pick the AI credentials for this deployment.
+ * - Lovable hosting injects LOVABLE_API_KEY automatically (managed key).
+ * - External hosting (e.g. Vercel) can provide the same variable name with a
+ *   key the site owner manages, or OPENAI_API_KEY to call OpenAI directly.
+ * Keys are read here, inside the server route handler, never at module scope.
+ */
+export function resolveAiConfig(env: Record<string, string | undefined>): AiConfig {
+  const lovableKey = env["LOVABLE_API_KEY"]?.trim();
+  if (lovableKey) return { kind: "lovable", apiKey: lovableKey };
+  const openaiKey = env["OPENAI_API_KEY"]?.trim();
+  if (openaiKey) return { kind: "openai", apiKey: openaiKey };
+  return { kind: "none" };
+}
+
+export function streamSaferStepChat(request: Request, config: Exclude<AiConfig, { kind: "none" }>, messages: ModelMessage[]) {
   const runIdFetch = createLovableAiGatewayRunIdFetch(getLovableAiGatewayRunId(request));
+
+  if (config.kind === "openai") {
+    // External deployment with the owner's own OpenAI key: call OpenAI directly.
+    const provider = createOpenAI({ apiKey: config.apiKey });
+    const result = streamText({
+      model: provider.responses("gpt-5-mini"),
+      instructions: SAFERSTEP_INSTRUCTIONS,
+      messages,
+      abortSignal: request.signal,
+      providerOptions: {
+        openai: {
+          store: false,
+          reasoningEffort: "low",
+          reasoningSummary: "auto",
+        },
+      },
+    });
+    return result.toUIMessageStreamResponse();
+  }
+
   const provider = createOpenAI({
     baseURL: "https://ai.gateway.lovable.dev/v1",
-    apiKey,
-    headers: { "Lovable-API-Key": apiKey, "X-Lovable-AIG-SDK": "vercel-ai-sdk" },
+    apiKey: config.apiKey,
+    headers: { "Lovable-API-Key": config.apiKey, "X-Lovable-AIG-SDK": "vercel-ai-sdk" },
     fetch: runIdFetch.fetch,
   });
   const result = streamText({
