@@ -65,6 +65,8 @@ export const Route = createFileRoute("/api/paypal/create-order")({
                   brand_name: "SaferStep Practice",
                   user_action: "PAY_NOW",
                   shipping_preference: "NO_SHIPPING",
+                  return_url: "https://saferstep.vercel.app/paypal/return",
+                  cancel_url: "https://saferstep.vercel.app/paypal/cancel",
                 },
               }),
             }
