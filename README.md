@@ -25,3 +25,6 @@ SaferStep provides educational safety guidance. It does not provide investment a
 
 ## Licence
 This project is licensed under the MIT Licence.
+
+Payment Simulation & Sandbox Currency Setup:
+SaferStep utilizes PayPal's REST API in Sandbox mode to simulate payment-scam awareness exercises. Orders are standardized in USD ($) to ensure a uniform checkout experience for international evaluators.
