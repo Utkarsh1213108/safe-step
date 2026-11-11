@@ -14,6 +14,8 @@ import { Route as HelpRouteImport } from './routes/help'
 import { Route as LearnRouteImport } from './routes/learn'
 import { Route as VerifyRouteImport } from './routes/verify'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
+import { Route as ApiPaypalCaptureOrderRouteImport } from './routes/api/paypal/capture-order'
+import { Route as ApiPaypalCreateOrderRouteImport } from './routes/api/paypal/create-order'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -40,6 +42,16 @@ const ApiChatRoute = ApiChatRouteImport.update({
   path: '/api/chat',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPaypalCaptureOrderRoute = ApiPaypalCaptureOrderRouteImport.update({
+  id: '/api/paypal/capture-order',
+  path: '/api/paypal/capture-order',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPaypalCreateOrderRoute = ApiPaypalCreateOrderRouteImport.update({
+  id: '/api/paypal/create-order',
+  path: '/api/paypal/create-order',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -47,6 +59,8 @@ export interface FileRoutesByFullPath {
   '/learn': typeof LearnRoute
   '/verify': typeof VerifyRoute
   '/api/chat': typeof ApiChatRoute
+  '/api/paypal/capture-order': typeof ApiPaypalCaptureOrderRoute
+  '/api/paypal/create-order': typeof ApiPaypalCreateOrderRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -54,6 +68,8 @@ export interface FileRoutesByTo {
   '/learn': typeof LearnRoute
   '/verify': typeof VerifyRoute
   '/api/chat': typeof ApiChatRoute
+  '/api/paypal/capture-order': typeof ApiPaypalCaptureOrderRoute
+  '/api/paypal/create-order': typeof ApiPaypalCreateOrderRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -62,13 +78,37 @@ export interface FileRoutesById {
   '/learn': typeof LearnRoute
   '/verify': typeof VerifyRoute
   '/api/chat': typeof ApiChatRoute
+  '/api/paypal/capture-order': typeof ApiPaypalCaptureOrderRoute
+  '/api/paypal/create-order': typeof ApiPaypalCreateOrderRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/help' | '/learn' | '/verify' | '/api/chat'
+  fullPaths:
+    | '/'
+    | '/help'
+    | '/learn'
+    | '/verify'
+    | '/api/chat'
+    | '/api/paypal/capture-order'
+    | '/api/paypal/create-order'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/help' | '/learn' | '/verify' | '/api/chat'
-  id: '__root__' | '/' | '/help' | '/learn' | '/verify' | '/api/chat'
+  to:
+    | '/'
+    | '/help'
+    | '/learn'
+    | '/verify'
+    | '/api/chat'
+    | '/api/paypal/capture-order'
+    | '/api/paypal/create-order'
+  id:
+    | '__root__'
+    | '/'
+    | '/help'
+    | '/learn'
+    | '/verify'
+    | '/api/chat'
+    | '/api/paypal/capture-order'
+    | '/api/paypal/create-order'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -77,6 +117,8 @@ export interface RootRouteChildren {
   LearnRoute: typeof LearnRoute
   VerifyRoute: typeof VerifyRoute
   ApiChatRoute: typeof ApiChatRoute
+  ApiPaypalCaptureOrderRoute: typeof ApiPaypalCaptureOrderRoute
+  ApiPaypalCreateOrderRoute: typeof ApiPaypalCreateOrderRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -116,6 +158,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiChatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/paypal/capture-order': {
+      id: '/api/paypal/capture-order'
+      path: '/api/paypal/capture-order'
+      fullPath: '/api/paypal/capture-order'
+      preLoaderRoute: typeof ApiPaypalCaptureOrderRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/paypal/create-order': {
+      id: '/api/paypal/create-order'
+      path: '/api/paypal/create-order'
+      fullPath: '/api/paypal/create-order'
+      preLoaderRoute: typeof ApiPaypalCreateOrderRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -125,6 +181,8 @@ const rootRouteChildren: RootRouteChildren = {
   LearnRoute: LearnRoute,
   VerifyRoute: VerifyRoute,
   ApiChatRoute: ApiChatRoute,
+  ApiPaypalCaptureOrderRoute: ApiPaypalCaptureOrderRoute,
+  ApiPaypalCreateOrderRoute: ApiPaypalCreateOrderRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
