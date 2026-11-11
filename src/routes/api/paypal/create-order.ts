@@ -79,10 +79,22 @@ export const Route = createFileRoute("/api/paypal/create-order")({
             );
           }
 
-          return Response.json({
-            id: orderData.id,
-            status: orderData.status,
-          });
+          const approvalUrl = orderData.links?.find(
+  (link: { rel: string; href: string }) => link.rel === "approve"
+)?.href;
+
+if (!approvalUrl) {
+  return Response.json(
+    { error: "PayPal approval link was not returned." },
+    { status: 502 }
+  );
+}
+
+return Response.json({
+  id: orderData.id,
+  status: orderData.status,
+  approvalUrl,
+});
         } catch {
           return Response.json(
             { error: "PayPal Sandbox request failed." },
