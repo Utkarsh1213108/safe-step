@@ -1,4 +1,3 @@
-
 import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/api/paypal/create-order")({
@@ -65,8 +64,8 @@ export const Route = createFileRoute("/api/paypal/create-order")({
                   brand_name: "SaferStep Practice",
                   user_action: "PAY_NOW",
                   shipping_preference: "NO_SHIPPING",
-                  return_url: "https://saferstep.vercel.app/paypal/return",
-                  cancel_url: "https://saferstep.vercel.app/paypal/cancel",
+                  return_url: "https://saferstep.vercel.app/",
+                  cancel_url: "https://saferstep.vercel.app/",
                 },
               }),
             }
@@ -76,30 +75,30 @@ export const Route = createFileRoute("/api/paypal/create-order")({
 
           if (!orderResponse.ok) {
             return Response.json(
-              { error: "PayPal could not create the Sandbox order." },
+              { error: "PayPal could not create the Sandbox order.", details: orderData },
               { status: 502 }
             );
           }
 
           const approvalUrl = orderData.links?.find(
-  (link: { rel: string; href: string }) => link.rel === "approve"
-)?.href;
+            (link: { rel: string; href: string }) => link.rel === "approve"
+          )?.href;
 
-if (!approvalUrl) {
-  return Response.json(
-    { error: "PayPal approval link was not returned." },
-    { status: 502 }
-  );
-}
+          if (!approvalUrl) {
+            return Response.json(
+              { error: "PayPal approval link was not returned." },
+              { status: 502 }
+            );
+          }
 
-return Response.json({
-  id: orderData.id,
-  status: orderData.status,
-  approvalUrl,
-});
-        } catch {
+          return Response.json({
+            id: orderData.id,
+            status: orderData.status,
+            approvalUrl,
+          });
+        } catch (error) {
           return Response.json(
-            { error: "PayPal Sandbox request failed." },
+            { error: "PayPal Sandbox request failed.", details: String(error) },
             { status: 500 }
           );
         }
